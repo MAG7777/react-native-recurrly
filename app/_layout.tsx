@@ -10,9 +10,9 @@ const sansRegular = require("../assets/fonts/PlusJakartaSans-Regular.ttf");
 const sansSemibold = require("../assets/fonts/PlusJakartaSans-SemiBold.ttf");
 
 SplashScreen.preventAutoHideAsync();
- 
+
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     "sans-regular": sansRegular,
     "sans-bold": sansBold,
     "sans-medium": sansMedium,
@@ -22,11 +22,12 @@ export default function RootLayout() {
   })
 
   useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, fontError]);
 
+  if (fontError) throw fontError;
   if (!fontsLoaded) return null;
   return <Stack screenOptions={{ headerShown: false }} />;
 }
