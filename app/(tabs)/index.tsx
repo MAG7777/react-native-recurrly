@@ -1,8 +1,7 @@
 import "@/global.css";
-import { Link } from "expo-router";
 import { FlatList, Image, Text, View } from "react-native";
 import { styled } from "nativewind";
-import { SafeAreaView as RNSafeAreView } from "react-native-safe-area-context";
+import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import images from "@/constants/images";
 import { HOME_BALANCE, HOME_SUBSCRIPTIONS, HOME_USER, UPCOMING_SUBSCRIPTIONS } from "@/constants/data";
 import { icons } from "@/constants/icons";
@@ -13,7 +12,7 @@ import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import { useState } from "react";
 
-const SafeAreaView = styled(RNSafeAreView);
+const SafeAreaView = styled(RNSafeAreaView);
 
 export default function App() {
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<string | null>(null);
@@ -54,14 +53,14 @@ export default function App() {
                 renderItem={({ item }) => (<UpcomingSubscriptionCard {...item} />)}
                 showsHorizontalScrollIndicator={false}
                 ListEmptyComponent={
-                  <Text className="home-empy-state">
+                  <Text className="home-empty-state">
                     No upcoming renewals yet.
                   </Text>
                 }
               />
             </View>
 
-            <ListHeading title="All Subscription" />
+            <ListHeading title="All Subscriptions" />
           </>
         )}
         data={HOME_SUBSCRIPTIONS}

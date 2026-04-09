@@ -9,6 +9,8 @@ const sansMedium = require("../assets/fonts/PlusJakartaSans-Medium.ttf");
 const sansRegular = require("../assets/fonts/PlusJakartaSans-Regular.ttf");
 const sansSemibold = require("../assets/fonts/PlusJakartaSans-SemiBold.ttf");
 
+SplashScreen.preventAutoHideAsync();
+ 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     "sans-regular": sansRegular,
