@@ -14,6 +14,7 @@ import {
   View
 } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+import { usePostHog } from "posthog-react-native";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -21,6 +22,7 @@ const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
 
 export default function SignIn() {
   const router = useRouter();
+  const posthog = usePostHog();
   const { signIn, errors, fetchStatus } = useSignIn();
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
@@ -52,6 +54,7 @@ export default function SignIn() {
 
       if (error) {
         setLocalError(error.message || "Unable to sign in. Please check your credentials.");
+        posthog.capture('sign_in_failed', { reason: error.message });
         return;
       }
 
@@ -82,10 +85,22 @@ export default function SignIn() {
       }
 
       if (signIn.status === "complete") {
+        posthog.identify(emailAddress, { $set: { email: emailAddress } });
+        posthog.capture('sign_in_completed', { email: emailAddress });
         await signIn.finalize({ navigate: finalizeAndNavigate(router) });
       }
     } catch (error) {
       console.error(error);
+      posthog.capture('$exception', {
+        $exception_list: [
+          {
+            type: error instanceof Error ? error.name : 'Error',
+            value: error instanceof Error ? error.message : 'Unknown sign-in error',
+            stacktrace: { type: 'raw', frames: error instanceof Error ? (error.stack ?? '') : '' },
+          },
+        ],
+        $exception_source: 'sign-in',
+      });
       setLocalError(
         error instanceof Error
           ? error.message
