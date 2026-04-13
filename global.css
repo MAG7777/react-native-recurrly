@@ -238,6 +238,22 @@
         @apply flex-1;
     }
 
+    .auth-field-label {
+        @apply mb-2 font-sans-semibold text-primary text-sm;
+    }
+
+    .auth-secondary {
+        @apply justify-center items-center mt-4;
+    }
+
+    .auth-link-text {
+        @apply font-sans-semibold text-accent text-base;
+    }
+
+    .auth-footer {
+        @apply items-center mt-5;
+    }
+
     .auth-content {
         @apply px-5 pt-8 pb-10 grow;
     }
@@ -271,11 +287,11 @@
     }
 
     .auth-subtitle {
-        @apply mt-2 max-w-[320px] font-sans-medium text-muted-foreground text-base text-center;
+        @apply mt-2 max-w-[320px] font-sans-medium text-muted-foreground text-base text-center leading-7;
     }
 
     .auth-card {
-        @apply bg-card mt-8 p-5 border border-border rounded-3xl;
+        @apply bg-card mt-8 p-5 border border-border rounded-3xl shadow-2xl shadow-black/5;
     }
 
     .auth-form {
@@ -299,7 +315,7 @@
     }
 
     .auth-error {
-        @apply font-sans-medium text-destructive text-xs;
+        @apply mt-3 font-sans-medium text-destructive text-xs;
     }
 
     .auth-helper {
@@ -307,7 +323,7 @@
     }
 
     .auth-button {
-        @apply items-center bg-accent mt-1 py-4 rounded-2xl;
+        @apply justify-center items-center bg-accent mt-1 py-4 rounded-2xl;
     }
 
     .auth-button-disabled {
@@ -315,7 +331,7 @@
     }
 
     .auth-button-text {
-        @apply font-sans-bold text-primary text-base;
+        @apply font-sans-semibold text-white text-base;
     }
 
     .auth-secondary-button {
