@@ -14,6 +14,7 @@ import {
   View
 } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+import { usePostHog } from "posthog-react-native";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -21,6 +22,7 @@ const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
 
 export default function SignUp() {
   const router = useRouter();
+  const posthog = usePostHog();
   const { signUp, errors, fetchStatus } = useSignUp();
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
@@ -61,6 +63,7 @@ export default function SignUp() {
       const { error } = await signUp.password({ emailAddress, password });
 
       if (error) {
+        posthog.capture('sign_up_failed', { reason: error.message });
         setLocalError(error.message || "Unable to create an account.");
         return;
       }
@@ -71,6 +74,11 @@ export default function SignUp() {
     }
 
     if (signUp.status === "complete") {
+      posthog.identify(emailAddress, {
+        $set: { email: emailAddress },
+        $set_once: { first_sign_up_date: new Date().toISOString() },
+      });
+      posthog.capture('sign_up_completed', { email: emailAddress });
       await signUp.finalize({ navigate: finalizeAndNavigate(router) });
     }
     } catch (error) {
@@ -95,6 +103,11 @@ export default function SignUp() {
       }
 
       if (signUp.status === "complete") {
+        posthog.identify(emailAddress, {
+          $set: { email: emailAddress },
+          $set_once: { first_sign_up_date: new Date().toISOString() },
+        });
+        posthog.capture('sign_up_completed', { email: emailAddress });
         await signUp.finalize({ navigate: finalizeAndNavigate(router) });
       }
     } catch (error) {

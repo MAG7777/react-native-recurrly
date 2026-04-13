@@ -1,90 +1,98 @@
+import CreateSubscriptionModal from "@/components/CreateSubscriptionModal";
 import ListHeading from "@/components/ListHeading";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
-import { HOME_BALANCE, HOME_SUBSCRIPTIONS, HOME_USER, UPCOMING_SUBSCRIPTIONS } from "@/constants/data";
+import { HOME_BALANCE, HOME_USER, UPCOMING_SUBSCRIPTIONS } from "@/constants/data";
 import { icons } from "@/constants/icons";
 import images from "@/constants/images";
-import "@/global.css";
-import { formatCurrency } from "@/lib/utils";
-import dayjs from 'dayjs';
+import { useSubscriptions } from "@/context/subscriptions-context";
+import { formatCurrency, formatSubscriptionDateTime } from "@/lib/utils";
 import { styled } from "nativewind";
-import React, { useState } from "react";
-import { FlatList, Image, ScrollView, Text, View } from "react-native";
+import React, { useMemo, useState } from "react";
+import { FlatList, Image, Pressable, Text, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
-export default function App() {
+const HomeScreen = () => {
+  const { subscriptions, addSubscription } = useSubscriptions();
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<string | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const allSubscriptions = useMemo(() => subscriptions, [subscriptions]);
+
+  const handleCreateSubscription = (subscription: Subscription) => {
+    addSubscription(subscription);
+    setIsModalVisible(false);
+  };
 
   return (
-    <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background p-5">
-
+    <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
       <FlatList
-        ListHeaderComponent={() => (
+        data={allSubscriptions}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <SubscriptionCard
+            {...item}
+            expanded={expandedSubscriptionId === item.id}
+            onPress={() =>
+              setExpandedSubscriptionId((currentId) =>
+                currentId === item.id ? null : item.id
+              )
+            }
+          />
+        )}
+        ItemSeparatorComponent={() => <View className="h-4" />}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 30 }}
+        ListHeaderComponent={(
           <>
             <View className="home-header">
               <View className="home-user">
                 <Image source={images.avatar} className="home-avatar" />
                 <Text className="home-user-name">{HOME_USER.name}</Text>
               </View>
-              <View className="flex-row items-center gap-3">
+              <Pressable onPress={() => setIsModalVisible(true)}>
                 <Image source={icons.add} className="home-add-icon" />
-              </View>
+              </Pressable>
             </View>
 
             <View className="home-balance-card">
-              <Text className="home-balance-label">Balance</Text>
-
+              <Text className="home-balance-label">Current Balance</Text>
               <View className="home-balance-row">
-                <Text className="home-balance-amount">
-                  {formatCurrency(HOME_BALANCE.amount)}
-                </Text>
+                <Text className="home-balance-amount">{formatCurrency(HOME_BALANCE.amount)}</Text>
                 <Text className="home-balance-date">
-                  {dayjs(HOME_BALANCE.nextRenewalDate).format("MM/DD")}
+                  Renews {formatSubscriptionDateTime(HOME_BALANCE.nextRenewalDate)}
                 </Text>
               </View>
             </View>
 
-            <View className="mb-5">
-              <ListHeading title="Upcoming" />
-              {UPCOMING_SUBSCRIPTIONS.length > 0 ? (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ paddingVertical: 2 }}
-                  className="space-x-4"
-                >
-                  {UPCOMING_SUBSCRIPTIONS.map((item) => (
-                    <UpcomingSubscriptionCard key={item.id} {...item} />
-                  ))}
-                </ScrollView>
-              ) : (
-                <Text className="home-empty-state">
-                  No upcoming renewals yet.
-                </Text>
-              )}
-            </View>
+            <ListHeading title="Upcoming Subscriptions" />
+            <FlatList
+              data={UPCOMING_SUBSCRIPTIONS}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => <UpcomingSubscriptionCard {...item} />}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+            />
 
             <ListHeading title="All Subscriptions" />
           </>
         )}
-        data={HOME_SUBSCRIPTIONS}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <SubscriptionCard
-            {...item}
-            expanded={expandedSubscriptionId === item.id}
-            onPress={() => setExpandedSubscriptionId((currentId) =>
-              (currentId === item.id ? null : item.id))}
-          />
-        )}
-        extraData={expandedSubscriptionId}
-        ItemSeparatorComponent={() => <View className="h-4" />}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={<Text className="home-empty-state">No subscriptions yet.</Text>}
-        contentContainerClassName="pb-30"
+        ListEmptyComponent={
+          <View className="py-4">
+            <Text className="home-empty-state">No subscriptions found.</Text>
+          </View>
+        }
+      />
+
+      <CreateSubscriptionModal
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        onSubmit={handleCreateSubscription}
       />
     </SafeAreaView>
   );
 };
+
+export default HomeScreen;
