@@ -1,3 +1,4 @@
+import { colors } from "@/constants/theme";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -24,7 +25,7 @@ export default function LoadingScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#191919",
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 28,
     borderWidth: 1,
-    borderColor: "#f79c3c",
+    borderColor: colors.accent,
     paddingVertical: 22,
     paddingHorizontal: 26,
   },
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   line: {
-    color: "#ffffff",
+    color: colors.background,
     fontSize: 32,
     lineHeight: 36,
     fontWeight: "800",
@@ -52,14 +53,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   tagLetter: {
-    color: "#f79c3c",
+    color: colors.accent,
     fontSize: 12,
     letterSpacing: 4,
     fontWeight: "700",
   },
   subtitle: {
     marginTop: 48,
-    color: "#ffffff",
+    color: colors.background,
     fontSize: 16,
     fontWeight: "600",
   },

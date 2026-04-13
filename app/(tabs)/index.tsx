@@ -9,7 +9,7 @@ import { formatCurrency } from "@/lib/utils";
 import dayjs from 'dayjs';
 import { styled } from "nativewind";
 import React, { useState } from "react";
-import { FlatList, Image, Text, View } from "react-native";
+import { FlatList, Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
 const SafeAreaView = styled(RNSafeAreaView);
@@ -48,18 +48,22 @@ export default function App() {
 
             <View className="mb-5">
               <ListHeading title="Upcoming" />
-              <FlatList
-                horizontal
-                keyExtractor={(item) => item.id}
-                data={UPCOMING_SUBSCRIPTIONS}
-                renderItem={({ item }) => (<UpcomingSubscriptionCard {...item} />)}
-                showsHorizontalScrollIndicator={false}
-                ListEmptyComponent={
-                  <Text className="home-empty-state">
-                    No upcoming renewals yet.
-                  </Text>
-                }
-              />
+              {UPCOMING_SUBSCRIPTIONS.length > 0 ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingVertical: 2 }}
+                  className="space-x-4"
+                >
+                  {UPCOMING_SUBSCRIPTIONS.map((item) => (
+                    <UpcomingSubscriptionCard key={item.id} {...item} />
+                  ))}
+                </ScrollView>
+              ) : (
+                <Text className="home-empty-state">
+                  No upcoming renewals yet.
+                </Text>
+              )}
             </View>
 
             <ListHeading title="All Subscriptions" />

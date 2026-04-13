@@ -1,5 +1,6 @@
+import { finalizeAndNavigate } from "@/lib/auth";
 import { useSignIn } from "@clerk/expo";
-import { type Href, Link, useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { styled } from "nativewind";
 import React, { useMemo, useState } from "react";
 import {
@@ -46,60 +47,79 @@ export default function SignIn() {
       setLocalError("Password must be at least 8 characters.");
       return;
     }
+    try {
+      const { error } = await signIn.password({ emailAddress, password });
 
-    const { error } = await signIn.password({ emailAddress, password });
-
-    if (error) {
-      setLocalError(error.message || "Unable to sign in. Please check your credentials.");
-      return;
-    }
-
-    if (signIn.status === "needs_client_trust" || signIn.status === "needs_second_factor") {
-      const emailCodeFactor = signIn.supportedSecondFactors?.find(
-        (factor) => factor.strategy === "email_code"
-      );
-
-      if (emailCodeFactor) {
-        await signIn.mfa.sendEmailCode();
-      } else {
-        setLocalError("A second-factor challenge is required. Please check your email for instructions.");
+      if (error) {
+        setLocalError(error.message || "Unable to sign in. Please check your credentials.");
+        return;
       }
 
-      return;
-    }
+      if (signIn.status === "needs_client_trust" || signIn.status === "needs_second_factor") {
+        const emailCodeFactor = signIn.supportedSecondFactors?.find(
+          (factor) => factor.strategy === "email_code"
+        );
 
-    if (signIn.status === "complete") {
-      await signIn.finalize({
-        navigate: ({ decorateUrl }) => {
-          const url = decorateUrl("/");
-          router.push(url as Href);
+        if (emailCodeFactor) {
+          try {
+            const { error: mfaError } = await signIn.mfa.sendEmailCode();
+            if (mfaError) {
+              setLocalError(mfaError.message || "Unable to send verification code.");
+            }
+          } catch (error) {
+            console.error(error);
+            setLocalError(
+              error instanceof Error
+                ? error.message
+                : "Unable to send verification code. Please try again."
+            );
+          }
+        } else {
+          setLocalError("A second-factor challenge is required. Please check your email for instructions.");
         }
-      });
+
+        return;
+      }
+
+      if (signIn.status === "complete") {
+        await signIn.finalize({ navigate: finalizeAndNavigate(router) });
+      }
+    } catch (error) {
+      console.error(error);
+      setLocalError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred during sign-in. Please try again."
+      );
     }
   };
 
   const handleVerify = async () => {
     setLocalError(null);
 
-    if (!code.trim()) {
-      setLocalError("Enter the verification code sent to your email.");
-      return;
-    }
+    try {
+      if (!code.trim()) {
+        setLocalError("Enter the verification code sent to your email.");
+        return;
+      }
 
-    const { error } = await signIn.mfa.verifyEmailCode({ code });
+      const { error } = await signIn.mfa.verifyEmailCode({ code });
 
-    if (error) {
-      setLocalError(error.message || "Unable to verify code.");
-      return;
-    }
+      if (error) {
+        setLocalError(error.message || "Unable to verify code.");
+        return;
+      }
 
-    if (signIn.status === "complete") {
-      await signIn.finalize({
-        navigate: ({ decorateUrl }) => {
-          const url = decorateUrl("/");
-          router.push(url as Href);
-        }
-      });
+      if (signIn.status === "complete") {
+        await signIn.finalize({ navigate: finalizeAndNavigate(router) });
+      }
+    } catch (error) {
+      console.error(error);
+      setLocalError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred during verification. Please try again."
+      );
     }
   };
 

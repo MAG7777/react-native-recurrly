@@ -1,5 +1,6 @@
+import { finalizeAndNavigate } from "@/lib/auth";
 import { useSignUp } from "@clerk/expo";
-import { type Href, Link, useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { styled } from "nativewind";
 import React, { useMemo, useState } from "react";
 import {
@@ -37,7 +38,11 @@ export default function SignUp() {
     [emailAddress, password, fetchStatus]
   );
 
-  const generalError = localError || (errors as any)?.message;
+  interface SignUpError {
+    message?: string;
+  }
+
+  const generalError = localError || ((errors as unknown as SignUpError)?.message);
 
   const handleSubmit = async () => {
     setLocalError(null);
@@ -52,12 +57,13 @@ export default function SignUp() {
       return;
     }
 
-    const { error } = await signUp.password({ emailAddress, password });
+    try {
+      const { error } = await signUp.password({ emailAddress, password });
 
-    if (error) {
-      setLocalError(error.message || "Unable to create an account.");
-      return;
-    }
+      if (error) {
+        setLocalError(error.message || "Unable to create an account.");
+        return;
+      }
 
     if (signUp.status === "missing_requirements") {
       await signUp.verifications.sendEmailCode();
@@ -65,37 +71,39 @@ export default function SignUp() {
     }
 
     if (signUp.status === "complete") {
-      await signUp.finalize({
-        navigate: ({ decorateUrl }) => {
-          const url = decorateUrl("/");
-          router.push(url as Href);
-        }
-      });
+      await signUp.finalize({ navigate: finalizeAndNavigate(router) });
+    }
+    } catch (error) {
+      setLocalError("An unexpected error occurred. Please try again.");
     }
   };
 
   const handleVerify = async () => {
     setLocalError(null);
 
-    if (!code.trim()) {
-      setLocalError("Enter the verification code sent to your email.");
-      return;
-    }
+    try {
+      if (!code.trim()) {
+        setLocalError("Enter the verification code sent to your email.");
+        return;
+      }
 
-    const { error } = await signUp.verifications.verifyEmailCode({ code });
+      const { error } = await signUp.verifications.verifyEmailCode({ code });
 
-    if (error) {
-      setLocalError(error.message || "Unable to verify code.");
-      return;
-    }
+      if (error) {
+        setLocalError(error.message || "Unable to verify code.");
+        return;
+      }
 
-    if (signUp.status === "complete") {
-      await signUp.finalize({
-        navigate: ({ decorateUrl }) => {
-          const url = decorateUrl("/");
-          router.push(url as Href);
-        }
-      });
+      if (signUp.status === "complete") {
+        await signUp.finalize({ navigate: finalizeAndNavigate(router) });
+      }
+    } catch (error) {
+      console.error(error);
+      setLocalError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again."
+      );
     }
   };
 
