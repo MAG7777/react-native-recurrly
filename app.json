@@ -8,8 +8,14 @@
     "scheme": "reactnativerecurrly",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-screen.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#191919"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.react-nativerecurrly"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +25,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.react_nativerecurrly"
     },
     "web": {
       "output": "static",
@@ -30,24 +37,24 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "image": "./assets/images/splash-screen.png",
+          "imageWidth": 1560,
+          "resizeMode": "cover",
+          "backgroundColor": "#191919",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#191919"
           }
         }
       ],
       [
         "expo-font",
         {
-          "fonts":[
-            "./assets/fonts/PlusJakartaSans-Regular.ttf", 
-            "./assets/fonts/PlusJakartaSans-Bold.ttf", 
-            "./assets/fonts/PlusJakartaSans-Medium.ttf", 
-            "./assets/fonts/PlusJakartaSans-SemiBold.ttf", 
-            "./assets/fonts/PlusJakartaSans-ExtraBold.ttf", 
+          "fonts": [
+            "./assets/fonts/PlusJakartaSans-Regular.ttf",
+            "./assets/fonts/PlusJakartaSans-Bold.ttf",
+            "./assets/fonts/PlusJakartaSans-Medium.ttf",
+            "./assets/fonts/PlusJakartaSans-SemiBold.ttf",
+            "./assets/fonts/PlusJakartaSans-ExtraBold.ttf",
             "./assets/fonts/PlusJakartaSans-Light.ttf"
           ]
         }

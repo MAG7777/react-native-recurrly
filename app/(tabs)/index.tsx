@@ -1,16 +1,16 @@
-import "@/global.css";
-import { FlatList, Image, Text, View } from "react-native";
-import { styled } from "nativewind";
-import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
-import images from "@/constants/images";
+import ListHeading from "@/components/ListHeading";
+import SubscriptionCard from "@/components/SubscriptionCard";
+import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
 import { HOME_BALANCE, HOME_SUBSCRIPTIONS, HOME_USER, UPCOMING_SUBSCRIPTIONS } from "@/constants/data";
 import { icons } from "@/constants/icons";
+import images from "@/constants/images";
+import "@/global.css";
 import { formatCurrency } from "@/lib/utils";
 import dayjs from 'dayjs';
-import ListHeading from "@/components/ListHeading";
-import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
-import SubscriptionCard from "@/components/SubscriptionCard";
-import { useState } from "react";
+import { styled } from "nativewind";
+import React, { useState } from "react";
+import { FlatList, Image, Text, View } from "react-native";
+import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -18,7 +18,7 @@ export default function App() {
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<string | null>(null);
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-5">
+    <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background p-5">
 
       <FlatList
         ListHeaderComponent={() => (
@@ -28,7 +28,9 @@ export default function App() {
                 <Image source={images.avatar} className="home-avatar" />
                 <Text className="home-user-name">{HOME_USER.name}</Text>
               </View>
-              <Image source={icons.add} className="home-add-icon" />
+              <View className="flex-row items-center gap-3">
+                <Image source={icons.add} className="home-add-icon" />
+              </View>
             </View>
 
             <View className="home-balance-card">

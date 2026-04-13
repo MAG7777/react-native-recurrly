@@ -238,6 +238,54 @@
         @apply flex-1;
     }
 
+    .auth-card {
+        @apply rounded-[32px] border border-black/10 bg-white/95 p-6 shadow-2xl shadow-black/5;
+    }
+
+    .auth-title {
+        @apply font-sans-extrabold text-primary text-4xl;
+    }
+
+    .auth-subtitle {
+        @apply text-muted-foreground text-base leading-7;
+    }
+
+    .auth-field-label {
+        @apply mb-2 font-sans-semibold text-primary text-sm;
+    }
+
+    .auth-input {
+        @apply bg-muted text-primary rounded-3xl border border-black/10 px-4 py-4 text-base font-sans-medium;
+    }
+
+    .auth-button {
+        @apply justify-center items-center bg-accent mt-4 py-4 rounded-3xl;
+    }
+
+    .auth-button-text {
+        @apply font-sans-semibold text-white text-base;
+    }
+
+    .auth-secondary {
+        @apply justify-center items-center mt-4;
+    }
+
+    .auth-link-text {
+        @apply font-sans-semibold text-accent text-base;
+    }
+
+    .auth-footer {
+        @apply items-center mt-5;
+    }
+
+    .auth-error {
+        @apply mt-3 font-sans-medium text-destructive text-sm;
+    }
+
+    .auth-form {
+        @apply gap-4;
+    }
+
     .auth-content {
         @apply px-5 pt-8 pb-10 grow;
     }
