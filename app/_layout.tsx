@@ -3,9 +3,9 @@ import { ClerkProvider } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack, useGlobalSearchParams, usePathname } from "expo-router";
+import { PostHogProvider } from "posthog-react-native";
 import React, { useEffect, useRef } from "react";
 import { Animated } from "react-native";
-import { PostHogProvider } from "posthog-react-native";
 import { posthog } from "../src/config/posthog";
 const sansBold = require("../assets/fonts/PlusJakartaSans-Bold.ttf");
 const sansExtrabold = require("../assets/fonts/PlusJakartaSans-ExtraBold.ttf");
@@ -34,7 +34,7 @@ function ScreenTracker() {
       });
       previousPathname.current = pathname;
     }
-  }, [pathname, params]);
+  }, [pathname]);
 
   return null;
 }

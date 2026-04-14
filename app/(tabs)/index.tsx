@@ -7,8 +7,9 @@ import { icons } from "@/constants/icons";
 import images from "@/constants/images";
 import { useSubscriptions } from "@/context/subscriptions-context";
 import { formatCurrency, formatSubscriptionDateTime } from "@/lib/utils";
+import { posthog } from "@/src/config/posthog";
 import { styled } from "nativewind";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { FlatList, Image, Pressable, Text, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
@@ -19,29 +20,36 @@ const HomeScreen = () => {
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const allSubscriptions = useMemo(() => subscriptions, [subscriptions]);
-
   const handleCreateSubscription = (subscription: Subscription) => {
     addSubscription(subscription);
     setIsModalVisible(false);
+    posthog.capture('subscription_created', {
+      subscription_name: subscription.name.trim(),
+      subscription_price: subscription.price,
+      subscription_category: subscription.category || 'uncategorized'
+    });
   };
 
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
       <FlatList
-        data={allSubscriptions}
+        data={subscriptions}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <SubscriptionCard
-            {...item}
-            expanded={expandedSubscriptionId === item.id}
-            onPress={() =>
-              setExpandedSubscriptionId((currentId) =>
-                currentId === item.id ? null : item.id
-              )
-            }
-          />
-        )}
+        renderItem={({ item }) => {
+          const { id, ...subscriptionProps } = item;
+
+          return (
+            <SubscriptionCard
+              {...subscriptionProps}
+              expanded={expandedSubscriptionId === id}
+              onPress={() =>
+                setExpandedSubscriptionId((currentId) =>
+                  currentId === id ? null : id
+                )
+              }
+            />
+          );
+        }}
         ItemSeparatorComponent={() => <View className="h-4" />}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 30 }}

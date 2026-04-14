@@ -1,9 +1,9 @@
 import { useClerk } from "@clerk/expo";
 import { styled } from "nativewind";
+import { usePostHog } from "posthog-react-native";
 import React, { useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
-import { usePostHog } from "posthog-react-native";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -17,8 +17,8 @@ const Settings = () => {
 
     try {
       posthog.capture('sign_out');
-      posthog.reset();
       await signOut();
+      posthog.reset();
     } catch (error) {
       console.error(error);
     } finally {

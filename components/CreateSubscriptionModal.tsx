@@ -38,11 +38,12 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 type FrequencyOption = (typeof FREQUENCY_OPTIONS)[number];
 type CategoryOption = (typeof CATEGORY_OPTIONS)[number];
+const PRICE_PATTERN = /^\d+(\.\d{1,2})?$/;
 
 type CreateSubscriptionModalProps = {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (subscription: any) => void;
+  onSubmit: (subscription: Subscription) => void;
 };
 
 const CreateSubscriptionModal = ({
@@ -56,10 +57,15 @@ const CreateSubscriptionModal = ({
   const [category, setCategory] = useState<CategoryOption>("Entertainment");
   const [error, setError] = useState<string | null>(null);
 
-  const numericPrice = useMemo(() => parseFloat(price), [price]);
+  const normalizedPrice = useMemo(() => price.trim(), [price]);
+  const isPriceFormatValid = useMemo(() => PRICE_PATTERN.test(normalizedPrice), [normalizedPrice]);
+  const numericPrice = useMemo(
+    () => (isPriceFormatValid ? Number(normalizedPrice) : Number.NaN),
+    [isPriceFormatValid, normalizedPrice]
+  );
   const isValid = useMemo(
-    () => name.trim().length > 0 && !Number.isNaN(numericPrice) && numericPrice > 0,
-    [name, numericPrice]
+    () => name.trim().length > 0 && isPriceFormatValid && !Number.isNaN(numericPrice) && numericPrice > 0,
+    [name, isPriceFormatValid, numericPrice]
   );
 
   const resetForm = () => {
@@ -81,7 +87,7 @@ const CreateSubscriptionModal = ({
       return;
     }
 
-    if (Number.isNaN(numericPrice) || numericPrice <= 0) {
+    if (!isPriceFormatValid || Number.isNaN(numericPrice) || numericPrice <= 0) {
       setError("Please enter a valid price greater than zero.");
       return;
     }

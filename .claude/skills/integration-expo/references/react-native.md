@@ -6,7 +6,7 @@ Our React Native enables you to integrate PostHog with your React Native project
 
 To install, add the `posthog-react-native` package to your project as well as the required peer dependencies.
 
-#### Expo apps
+### Expo apps
 
 Terminal
 
@@ -552,7 +552,7 @@ posthog.register({
 
 The call above ensures that every event sent by the user will include `"icecream pref": "vanilla"` and `"team_id": 22`. This way, if you filtered events by property using `icecream_pref = vanilla`, it would display all events captured on that user after the `posthog.register` call, since they all include the specified Super Property.
 
-This does **not** set the user's properties. This only sets the properties for their events. To store person properties, see the [setting person properties section](#setting-user-properties).
+This does **not** set the user's properties. This only sets the properties for their events. To store person properties, see the [setting person properties section](#setting-person-properties).
 
 ### Removing stored super properties
 
@@ -1103,7 +1103,7 @@ PostHog AI
 
 ```jsx
 <PostHogProvider
-    debug: {true}
+  debug={true}
     apiKey="<ph_project_token>"
     options={{
         host: "https://us.i.posthog.com",
