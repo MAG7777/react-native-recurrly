@@ -1,7 +1,9 @@
+import { getHashedIdentifier, hasAnalyticsConsent } from "@/lib/analytics";
 import { finalizeAndNavigate } from "@/lib/auth";
 import { useSignIn } from "@clerk/expo";
 import { Link, useRouter } from "expo-router";
 import { styled } from "nativewind";
+import { usePostHog } from "posthog-react-native";
 import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -14,11 +16,28 @@ import {
   View
 } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
-import { usePostHog } from "posthog-react-native";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
 const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
+
+const toExceptionFrames = (error: unknown) => {
+  if (!(error instanceof Error)) {
+    return [];
+  }
+
+  try {
+    const ErrorStackParser = require("error-stack-parser");
+    return ErrorStackParser.parse(error).map((frame: any) => ({
+      filename: frame?.fileName ?? "",
+      lineno: frame?.lineNumber ?? null,
+      colno: frame?.columnNumber ?? null,
+      function: frame?.functionName ?? "",
+    }));
+  } catch {
+    return [];
+  }
+};
 
 export default function SignIn() {
   const router = useRouter();
@@ -37,6 +56,18 @@ export default function SignIn() {
 
   const generalError = localError || (errors as any)?.message;
 
+  const trackSignInCompleted = () => {
+    if (!hasAnalyticsConsent(posthog)) {
+      return;
+    }
+
+    const hashedIdentifier = getHashedIdentifier(emailAddress);
+    posthog.identify(hashedIdentifier, {
+      $set: { email_hash: hashedIdentifier },
+    });
+    posthog.capture("sign_in_completed", { user_hash: hashedIdentifier });
+  };
+
   const handleSubmit = async () => {
     setLocalError(null);
 
@@ -54,7 +85,9 @@ export default function SignIn() {
 
       if (error) {
         setLocalError(error.message || "Unable to sign in. Please check your credentials.");
-        posthog.capture('sign_in_failed', { reason: error.message });
+        if (hasAnalyticsConsent(posthog)) {
+          posthog.capture("sign_in_failed", { reason: error.message });
+        }
         return;
       }
 
@@ -85,22 +118,26 @@ export default function SignIn() {
       }
 
       if (signIn.status === "complete") {
-        posthog.identify(emailAddress, { $set: { email: emailAddress } });
-        posthog.capture('sign_in_completed', { email: emailAddress });
+        trackSignInCompleted();
         await signIn.finalize({ navigate: finalizeAndNavigate(router) });
       }
     } catch (error) {
       console.error(error);
-      posthog.capture('$exception', {
-        $exception_list: [
-          {
-            type: error instanceof Error ? error.name : 'Error',
-            value: error instanceof Error ? error.message : 'Unknown sign-in error',
-            stacktrace: { type: 'raw', frames: error instanceof Error ? (error.stack ?? '') : '' },
-          },
-        ],
-        $exception_source: 'sign-in',
-      });
+      if (hasAnalyticsConsent(posthog)) {
+        posthog.capture("$exception", {
+          $exception_list: [
+            {
+              type: error instanceof Error ? error.name : "Error",
+              value: error instanceof Error ? error.message : "Unknown sign-in error",
+              stacktrace: {
+                type: "raw",
+                frames: toExceptionFrames(error),
+              },
+            },
+          ],
+          $exception_source: "sign-in",
+        });
+      }
       setLocalError(
         error instanceof Error
           ? error.message
@@ -126,6 +163,7 @@ export default function SignIn() {
       }
 
       if (signIn.status === "complete") {
+        trackSignInCompleted();
         await signIn.finalize({ navigate: finalizeAndNavigate(router) });
       }
     } catch (error) {

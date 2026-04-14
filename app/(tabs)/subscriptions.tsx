@@ -71,17 +71,21 @@ const Subscriptions = () => {
           <FlatList
             data={filteredSubscriptions}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <SubscriptionCard
-                {...item}
-                expanded={expandedSubscriptionId === item.id}
-                onPress={() =>
-                  setExpandedSubscriptionId((currentId) =>
-                    currentId === item.id ? null : item.id
-                  )
-                }
-              />
-            )}
+            renderItem={({ item }) => {
+              const { id, ...subscriptionProps } = item;
+
+              return (
+                <SubscriptionCard
+                  {...subscriptionProps}
+                  expanded={expandedSubscriptionId === id}
+                  onPress={() =>
+                    setExpandedSubscriptionId((currentId) =>
+                      currentId === id ? null : id
+                    )
+                  }
+                />
+              );
+            }}
             ItemSeparatorComponent={() => <View className="h-4" />}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"

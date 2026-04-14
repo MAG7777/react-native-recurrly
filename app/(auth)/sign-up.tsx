@@ -1,20 +1,21 @@
+import { getHashedIdentifier, hasAnalyticsConsent } from "@/lib/analytics";
 import { finalizeAndNavigate } from "@/lib/auth";
 import { useSignUp } from "@clerk/expo";
 import { Link, useRouter } from "expo-router";
 import { styled } from "nativewind";
+import { usePostHog } from "posthog-react-native";
 import React, { useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    View
 } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
-import { usePostHog } from "posthog-react-native";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -46,6 +47,19 @@ export default function SignUp() {
 
   const generalError = localError || ((errors as unknown as SignUpError)?.message);
 
+  const trackSignUpCompleted = () => {
+    if (!hasAnalyticsConsent(posthog)) {
+      return;
+    }
+
+    const hashedIdentifier = getHashedIdentifier(emailAddress);
+    posthog.identify(hashedIdentifier, {
+      $set: { email_hash: hashedIdentifier },
+      $set_once: { first_sign_up_date: new Date().toISOString() },
+    });
+    posthog.capture("sign_up_completed", { user_hash: hashedIdentifier });
+  };
+
   const handleSubmit = async () => {
     setLocalError(null);
 
@@ -63,24 +77,22 @@ export default function SignUp() {
       const { error } = await signUp.password({ emailAddress, password });
 
       if (error) {
-        posthog.capture('sign_up_failed', { reason: error.message });
+        if (hasAnalyticsConsent(posthog)) {
+          posthog.capture("sign_up_failed", { reason: error.message });
+        }
         setLocalError(error.message || "Unable to create an account.");
         return;
       }
 
-    if (signUp.status === "missing_requirements") {
-      await signUp.verifications.sendEmailCode();
-      return;
-    }
+      if (signUp.status === "missing_requirements") {
+        await signUp.verifications.sendEmailCode();
+        return;
+      }
 
-    if (signUp.status === "complete") {
-      posthog.identify(emailAddress, {
-        $set: { email: emailAddress },
-        $set_once: { first_sign_up_date: new Date().toISOString() },
-      });
-      posthog.capture('sign_up_completed', { email: emailAddress });
-      await signUp.finalize({ navigate: finalizeAndNavigate(router) });
-    }
+      if (signUp.status === "complete") {
+        trackSignUpCompleted();
+        await signUp.finalize({ navigate: finalizeAndNavigate(router) });
+      }
     } catch (error) {
       setLocalError("An unexpected error occurred. Please try again.");
     }
@@ -103,11 +115,7 @@ export default function SignUp() {
       }
 
       if (signUp.status === "complete") {
-        posthog.identify(emailAddress, {
-          $set: { email: emailAddress },
-          $set_once: { first_sign_up_date: new Date().toISOString() },
-        });
-        posthog.capture('sign_up_completed', { email: emailAddress });
+        trackSignUpCompleted();
         await signUp.finalize({ navigate: finalizeAndNavigate(router) });
       }
     } catch (error) {
