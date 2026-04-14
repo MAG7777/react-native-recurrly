@@ -167,8 +167,7 @@ Person properties can also be set being adding a `$set` property to a event `cap
 See our [person properties docs](/docs/product-analytics/person-properties.md) for more details on how to work with them and best practices.
 
 ### 5\. Use deep links between platforms
-
-We recommend you call `identify` [as soon as you're able](#call-identify-as-soon-as-youre-able), typically when a user signs up or logs in.
+-We recommend you call `identify` [as soon as you're able](`#1-call-identify-as-soon-as-youre-able-to`), typically when a user signs up or logs in.
 
 This doesn't work if one or both platforms are unauthenticated. Some examples of such cases are:
 

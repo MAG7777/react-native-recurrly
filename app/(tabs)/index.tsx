@@ -12,6 +12,7 @@ import { styled } from "nativewind";
 import React, { useState } from "react";
 import { FlatList, Image, Pressable, Text, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+import { hasAnalyticsConsent } from "@/lib/analytics";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -23,11 +24,13 @@ const HomeScreen = () => {
   const handleCreateSubscription = (subscription: Subscription) => {
     addSubscription(subscription);
     setIsModalVisible(false);
-    posthog.capture('subscription_created', {
-      subscription_name: subscription.name.trim(),
-      subscription_price: subscription.price,
-      subscription_category: subscription.category || 'uncategorized'
-    });
+    if (hasAnalyticsConsent(posthog)) {
+      posthog.capture("subscription_created", {
+        subscription_name: subscription.name.trim(),
+        subscription_price: subscription.price,
+        subscription_category: subscription.category || "uncategorized",
+      });
+    };
   };
 
   return (

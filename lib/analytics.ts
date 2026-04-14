@@ -1,6 +1,6 @@
 type PostHogConsentLike = {
   optedOut?: boolean;
-};
+} | null | undefined;
 
 const normalizeIdentifier = (value: string) => value.trim().toLowerCase();
 
@@ -20,4 +20,4 @@ export const getHashedIdentifier = (value: string) => {
   return normalized ? `anon_${hashValue(normalized)}` : "anon_unknown";
 };
 
-export const hasAnalyticsConsent = (posthog: PostHogConsentLike) => !posthog?.optedOut;
+export const hasAnalyticsConsent = (posthog: PostHogConsentLike) => posthog?.optedOut === false;
