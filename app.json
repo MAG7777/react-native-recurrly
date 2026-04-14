@@ -1,21 +1,21 @@
 {
   "expo": {
-    "name": "react_native-recurrly",
+    "name": "Recurrly",
     "slug": "react_native-recurrly",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "reactnativerecurrly",
+    "icon": "./assets/icons/logo.png",
+    "scheme": "recurrly",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-screen.png",
+      "image": "./assets/images/splash-pattern.png",
       "resizeMode": "cover",
       "backgroundColor": "#191919"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.reactnativerecurrly"
+      "bundleIdentifier": "com.mag.recurrly"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,7 +26,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.reactnativerecurrly"
+      "package": "com.mag.recurrly"
     },
     "web": {
       "output": "static",
@@ -64,6 +64,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "57dca8cf-9cfe-4519-b74e-fea81ee82f33"
+      }
     }
   }
 }
